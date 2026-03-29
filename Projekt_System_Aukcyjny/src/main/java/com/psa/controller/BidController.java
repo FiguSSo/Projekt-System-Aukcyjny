@@ -1,4 +1,4 @@
 package com.psa.controller;
 
-public class test {
+public class BidController {
 }
