@@ -1,4 +1,4 @@
 package com.psa.service;
 
-public class test {
+public class UserService {
 }

@@ -1,4 +1,4 @@
 package com.psa.model;
 
-public class test {
+public class User {
 }
