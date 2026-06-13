@@ -1,7 +1,9 @@
 package com.psa.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public class UserRequestDto {
-    private String username;
-    private String email;
-    private String password;
+
+
 }

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Aukcje</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+
+        h1, h2 {
+            color: #222;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            max-width: 600px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            min-height: 80px;
+        }
+
+        button {
+            margin-top: 18px;
+            padding: 10px 18px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        .auction {
+            background-color: white;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .empty {
+            color: #777;
+            font-style: italic;
+        }
+
+        .hint {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>System aukcyjny</h1>
+
+<h2>Dodaj nową aukcję</h2>
+
+<form th:action="@{/auctions}" th:object="${auctionForm}" method="post">
+
+    <label for="title">Tytuł</label>
+    <input type="text" id="title" th:field="*{title}" placeholder="Np. Laptop Lenovo" required>
+
+    <label for="description">Opis</label>
+    <textarea id="description" th:field="*{description}" placeholder="Opis przedmiotu" required></textarea>
+
+    <label for="startingPrice">Cena startowa</label>
+    <input type="number" id="startingPrice" th:field="*{startingPrice}" step="0.01" min="0" placeholder="Np. 1200.00" required>
+
+    <label for="category">Kategoria</label>
+    <input type="text" id="category" th:field="*{category}" placeholder="Np. ELECTRONICS" required>
+    <p class="hint">Wpisz dokładnie taką kategorię, jaka jest w Twoim enumie Category.</p>
+
+    <label for="status">Status</label>
+    <input type="text" id="status" th:field="*{status}" placeholder="Np. ACTIVE" required>
+    <p class="hint">Wpisz dokładnie taki status, jaki jest w Twoim enumie AuctionStatus.</p>
+
+    <label for="startDate">Data rozpoczęcia</label>
+    <input type="datetime-local" id="startDate" th:field="*{startDate}" required>
+
+    <label for="endDate">Data zakończenia</label>
+    <input type="datetime-local" id="endDate" th:field="*{endDate}" required>
+
+    <button type="submit">Dodaj aukcję</button>
+</form>
+
+<h2>Lista aukcji</h2>
+
+<p th:if="${#lists.isEmpty(auctions)}" class="empty">
+    Brak aukcji w bazie.
+</p>
+
+<div th:each="auction : ${auctions}" class="auction">
+    <h2 th:text="${auction.title}">Tytuł aukcji</h2>
+
+    <p>
+        <strong>Opis:</strong>
+        <span th:text="${auction.description}">Opis aukcji</span>
+    </p>
+
+    <p>
+        <strong>Cena startowa:</strong>
+        <span th:text="${auction.startingPrice}">0.00</span> zł
+    </p>
+
+    <p>
+        <strong>Kategoria:</strong>
+        <span th:text="${auction.category}">KATEGORIA</span>
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        <span th:text="${auction.status}">STATUS</span>
+    </p>
+
+    <p>
+        <strong>Start:</strong>
+        <span th:text="${auction.startDate}">data startu</span>
+    </p>
+
+    <p>
+        <strong>Koniec:</strong>
+        <span th:text="${auction.endDate}">data końca</span>
+    </p>
+</div>
+
+</body>
+</html>

@@ -1,4 +1,6 @@
 package com.psa.model;
 
-public class AuctionStatus {
+public enum AuctionStatus {
+    ACTIVE,   // Aukcja jest aktywna i można w niej licytować
+    CLOSED    // Aukcja została zakończona
 }
