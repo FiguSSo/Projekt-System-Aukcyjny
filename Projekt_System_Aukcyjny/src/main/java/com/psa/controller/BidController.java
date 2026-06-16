@@ -19,5 +19,15 @@ public class BidController {
         this.bidService = bidService;
     }
 
+    @PostMapping
+    public ResponseEntity<Bid> placeBid(@Valid @RequestBody BidRequestDto bidRequestDto) {
+        
+        Bid bid = new Bid();
+        bid.setAmount(bidRequestDto.getAmount()); 
 
+        
+        Bid savedBid = bidService.placeBid(bidRequestDto.getAuctionId(), bidRequestDto.getUserId(), bid);
+
+        return new ResponseEntity<>(savedBid, HttpStatus.CREATED);
+    }
 }
