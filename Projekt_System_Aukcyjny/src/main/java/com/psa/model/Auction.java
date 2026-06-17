@@ -1,6 +1,7 @@
 package com.psa.model;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -37,8 +38,6 @@ public class Auction {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "current_highest_bid_id", referencedColumnName = "id")
     private Bid currentHighestBid;
-
-    // Gettery i settery
 
     public Long getId() {
         return id;

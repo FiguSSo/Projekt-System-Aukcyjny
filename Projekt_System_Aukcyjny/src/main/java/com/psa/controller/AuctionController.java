@@ -3,6 +3,7 @@ package com.psa.controller;
 import com.psa.dto.AuctionRequestDto;
 import com.psa.model.Auction;
 import com.psa.service.AuctionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,27 +21,30 @@ public class AuctionController {
     }
 
     @PostMapping
-    public ResponseEntity<Auction> createAuction(@RequestBody AuctionRequestDto auctionRequestDto) {
+    public ResponseEntity<Auction> createAuction(@Valid @RequestBody AuctionRequestDto auctionRequestDto) {
         Auction newAuction = auctionService.createAuction(auctionRequestDto);
         return new ResponseEntity<>(newAuction, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Auction> updateAuction(@PathVariable Long id, @RequestBody AuctionRequestDto auctionRequestDto) {
+    public ResponseEntity<Auction> updateAuction(
+            @PathVariable Long id,
+            @Valid @RequestBody AuctionRequestDto auctionRequestDto
+    ) {
         Auction updatedAuction = auctionService.updateAuction(id, auctionRequestDto);
-        return new ResponseEntity<>(updatedAuction, HttpStatus.OK);
+        return ResponseEntity.ok(updatedAuction);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Auction> getAuctionById(@PathVariable Long id) {
         Auction auction = auctionService.getAuctionById(id);
-        return new ResponseEntity<>(auction, HttpStatus.OK);
+        return ResponseEntity.ok(auction);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuction(@PathVariable Long id) {
         auctionService.deleteAuction(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
@@ -49,6 +53,6 @@ public class AuctionController {
             @RequestParam(required = false) String status
     ) {
         List<Auction> auctions = auctionService.getAllAuctions(category, status);
-        return new ResponseEntity<>(auctions, HttpStatus.OK);
+        return ResponseEntity.ok(auctions);
     }
 }
