@@ -14,5 +14,26 @@ import java.util.List;
 @Controller
 public class AuctionPageController {
 
+    private final AuctionService auctionService;
 
+    public AuctionPageController(AuctionService auctionService) {
+        this.auctionService = auctionService;
+    }
+
+    @GetMapping("/")
+    public String home(Model model) {
+        List<Auction> auctions = auctionService.getAllAuctions(null, null);
+
+        model.addAttribute("auctions", auctions);
+        model.addAttribute("auctionForm", new AuctionRequestDto());
+
+        return "index";
+    }
+
+    @PostMapping("/auctions")
+    public String createAuctionFromForm(@ModelAttribute AuctionRequestDto auctionForm) {
+        auctionService.createAuction(auctionForm);
+
+        return "redirect:/";
+    }
 }
