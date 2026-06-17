@@ -1,4 +1,4 @@
-package com.psa.service.impl;
+package com.psa.service;
 
 import com.psa.dto.AuctionRequestDto;
 import com.psa.exception.ResourceNotFoundException;
@@ -6,11 +6,10 @@ import com.psa.model.Auction;
 import com.psa.model.AuctionStatus;
 import com.psa.model.Category;
 import com.psa.repository.AuctionRepository;
-import com.psa.service.AuctionService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AuctionServiceImpl implements AuctionService {
@@ -24,14 +23,8 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public Auction createAuction(AuctionRequestDto auctionRequestDto) {
         Auction auction = new Auction();
-        auction.setTitle(auctionRequestDto.getTitle());
-        auction.setDescription(auctionRequestDto.getDescription());
-        auction.setStartingPrice(auctionRequestDto.getStartingPrice());
-        auction.setStartDate(auctionRequestDto.getStartDate());
-        auction.setEndDate(auctionRequestDto.getEndDate());
-        auction.setCategory(Category.valueOf(auctionRequestDto.getCategory()));
+        mapAuctionFields(auction, auctionRequestDto);
         auction.setStatus(AuctionStatus.ACTIVE);
-
         return auctionRepository.save(auction);
     }
 
@@ -40,11 +33,9 @@ public class AuctionServiceImpl implements AuctionService {
         Auction auction = auctionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + id));
 
-        auction.setTitle(auctionRequestDto.getTitle());
-        auction.setDescription(auctionRequestDto.getDescription());
-        auction.setStartingPrice(auctionRequestDto.getStartingPrice());
-        auction.setEndDate(auctionRequestDto.getEndDate());
-        auction.setCategory(Category.valueOf(auctionRequestDto.getCategory()));
+        AuctionStatus currentStatus = auction.getStatus();
+        mapAuctionFields(auction, auctionRequestDto);
+        auction.setStatus(currentStatus);
 
         return auctionRepository.save(auction);
     }
@@ -66,13 +57,50 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public List<Auction> getAllAuctions(String category, String status) {
-        if (category != null && status != null) {
-            return auctionRepository.findByCategoryAndStatus(Category.valueOf(category), AuctionStatus.valueOf(status));
-        } else if (category != null) {
-            return auctionRepository.findByCategory(Category.valueOf(category));
-        } else if (status != null) {
-            return auctionRepository.findByStatus(AuctionStatus.valueOf(status));
+        if (hasText(category) && hasText(status)) {
+            return auctionRepository.findByCategoryAndStatus(
+                    parseCategory(category),
+                    parseStatus(status)
+            );
         }
+
+        if (hasText(category)) {
+            return auctionRepository.findByCategory(parseCategory(category));
+        }
+
+        if (hasText(status)) {
+            return auctionRepository.findByStatus(parseStatus(status));
+        }
+
         return auctionRepository.findAll();
+    }
+
+    private void mapAuctionFields(Auction auction, AuctionRequestDto auctionRequestDto) {
+        auction.setTitle(auctionRequestDto.getTitle().trim());
+        auction.setDescription(auctionRequestDto.getDescription().trim());
+        auction.setStartingPrice(auctionRequestDto.getStartingPrice());
+        auction.setStartDate(auctionRequestDto.getStartDate());
+        auction.setEndDate(auctionRequestDto.getEndDate());
+        auction.setCategory(parseCategory(auctionRequestDto.getCategory()));
+    }
+
+    private Category parseCategory(String category) {
+        try {
+            return Category.valueOf(category.trim().toUpperCase(Locale.ROOT));
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Invalid category: " + category);
+        }
+    }
+
+    private AuctionStatus parseStatus(String status) {
+        try {
+            return AuctionStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Invalid status: " + status);
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 }

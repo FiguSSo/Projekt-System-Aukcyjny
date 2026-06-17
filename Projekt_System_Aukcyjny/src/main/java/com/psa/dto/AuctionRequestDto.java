@@ -3,6 +3,7 @@ package com.psa.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,15 +21,15 @@ public class AuctionRequestDto {
     private BigDecimal startingPrice;
 
     @NotNull(message = "Start date is required")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
 
     @NotNull(message = "End date is required")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
     @NotBlank(message = "Category is required")
     private String category;
-
-    private Long ownerId; // ID właściciela aukcji 
 
     public String getTitle() {
         return title;
@@ -76,13 +77,5 @@ public class AuctionRequestDto {
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
     }
 }

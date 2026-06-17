@@ -1,10 +1,9 @@
-package com.psa.service.impl;
+package com.psa.service;
 
 import com.psa.dto.UserRequestDto;
 import com.psa.exception.ResourceNotFoundException;
 import com.psa.model.User;
 import com.psa.repository.UserRepository;
-import com.psa.service.UserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,12 +20,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserRequestDto userRequestDto) {
         User user = new User();
-        user.setUsername(userRequestDto.getUsername());
-        user.setPassword(userRequestDto.getPassword());
-        user.setEmail(userRequestDto.getEmail());
-        user.setFirstName(userRequestDto.getFirstName());
-        user.setLastName(userRequestDto.getLastName());
-
+        mapUserFields(user, userRequestDto);
         return userRepository.save(user);
     }
 
@@ -35,19 +29,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-        user.setUsername(userRequestDto.getUsername());
-        user.setPassword(userRequestDto.getPassword());
-        user.setEmail(userRequestDto.getEmail());
-        user.setFirstName(userRequestDto.getFirstName());
-        user.setLastName(userRequestDto.getLastName());
-
+        mapUserFields(user, userRequestDto);
         return userRepository.save(user);
-    }
-
-    @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
     }
 
     @Override
@@ -59,7 +42,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    private void mapUserFields(User user, UserRequestDto userRequestDto) {
+        user.setUsername(userRequestDto.getUsername());
+        user.setPassword(userRequestDto.getPassword());
+        user.setEmail(userRequestDto.getEmail());
+        user.setFirstName(userRequestDto.getFirstName());
+        user.setLastName(userRequestDto.getLastName());
     }
 }
