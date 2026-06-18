@@ -1,3 +1,4 @@
+// src/main/java/com/psa/service/BidServiceImpl.java
 package com.psa.service;
 
 import com.psa.exception.ResourceNotFoundException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class BidServiceImpl implements BidService {
@@ -56,10 +58,42 @@ public class BidServiceImpl implements BidService {
         bid.setBidTime(LocalDateTime.now());
 
         Bid savedBid = bidRepository.save(bid);
-
         auction.setCurrentHighestBid(savedBid);
         auctionRepository.save(auction);
 
         return savedBid;
+    }
+
+
+    public Bid getBidById(Long id) {
+        return bidRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Bid not found with id: " + id));
+    }
+
+
+    public List<Bid> getAllBids() {
+        return bidRepository.findAll();
+    }
+
+
+    public List<Bid> getBidsByAuctionId(Long auctionId) {
+        auctionRepository.findById(auctionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + auctionId));
+
+        return bidRepository.findAll()
+                .stream()
+                .filter(bid -> bid.getAuction() != null && auctionId.equals(bid.getAuction().getId()))
+                .toList();
+    }
+
+
+    public List<Bid> getBidsByUserId(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        return bidRepository.findAll()
+                .stream()
+                .filter(bid -> bid.getBidder() != null && userId.equals(bid.getBidder().getId()))
+                .toList();
     }
 }

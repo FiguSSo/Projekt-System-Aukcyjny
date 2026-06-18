@@ -1,8 +1,10 @@
+// src/main/java/com/psa/model/User.java
 package com.psa.model;
 
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -19,10 +21,7 @@ public class User {
     private String email;
 
     private String firstName;
-
     private String lastName;
-
-    // Gettery i settery
 
     public Long getId() {
         return id;
