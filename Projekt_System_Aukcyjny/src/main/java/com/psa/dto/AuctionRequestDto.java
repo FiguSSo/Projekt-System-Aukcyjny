@@ -10,25 +10,25 @@ import java.time.LocalDateTime;
 
 public class AuctionRequestDto {
 
-    @NotBlank(message = "Title cannot be blank")
+    @NotBlank(message = "Tytuł nie może być pusty")
     private String title;
 
-    @NotBlank(message = "Description cannot be blank")
+    @NotBlank(message = "Opis nie może być pusty")
     private String description;
 
-    @NotNull(message = "Starting price is required")
-    @Positive(message = "Starting price must be greater than zero")
+    @NotNull(message = "Cena wywoławcza jest wymagana")
+    @Positive(message = "Cena wywoławcza musi być większa od zera")
     private BigDecimal startingPrice;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Data rozpoczęcia jest wymagana")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "Data zakończenia jest wymagana")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDate;
 
-    @NotBlank(message = "Category is required")
+    @NotBlank(message = "Kategoria jest wymagana")
     private String category;
 
     public String getTitle() {

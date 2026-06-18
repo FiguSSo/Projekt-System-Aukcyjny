@@ -6,14 +6,14 @@ import java.math.BigDecimal;
 
 public class BidRequestDto {
 
-    @NotNull(message = "Auction ID is required")
+    @NotNull(message = "ID aukcji jest wymagane")
     private Long auctionId;
 
-    @NotNull(message = "User ID is required")
+    @NotNull(message = "ID użytkownika jest wymagane")
     private Long userId;
 
-    @NotNull(message = "Bid amount is required")
-    @Positive(message = "Bid amount must be greater than 0")
+    @NotNull(message = "Kwota oferty jest wymagana")
+    @Positive(message = "Kwota oferty musi być większa od zera")
     private BigDecimal amount;
 
     public Long getAuctionId() {

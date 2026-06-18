@@ -1,4 +1,3 @@
-// src/main/java/com/psa/service/BidServiceImpl.java
 package com.psa.service;
 
 import com.psa.exception.ResourceNotFoundException;
@@ -35,13 +34,13 @@ public class BidServiceImpl implements BidService {
     @Override
     public Bid placeBid(Long auctionId, Long userId, Bid bid) {
         Auction auction = auctionRepository.findById(auctionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + auctionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Aukcja o id " + auctionId + " nie istnieje"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("Uzytkownik o id " + userId + " nie istnieje"));
 
         if (auction.getStatus() != AuctionStatus.ACTIVE) {
-            throw new IllegalStateException("Auction is not active");
+            throw new IllegalStateException("Aukcja nie jest aktywna");
         }
 
         Bid currentHighestBid = auction.getCurrentHighestBid();
@@ -50,7 +49,7 @@ public class BidServiceImpl implements BidService {
                 : auction.getStartingPrice();
 
         if (bid.getAmount().compareTo(currentPrice) <= 0) {
-            throw new IllegalArgumentException("Bid amount must be higher than the current highest bid or starting price");
+            throw new IllegalArgumentException("Oferta musi byc wyzsza niz aktualnie najwyzsza oferta");
         }
 
         bid.setAuction(auction);
@@ -64,36 +63,23 @@ public class BidServiceImpl implements BidService {
         return savedBid;
     }
 
-
+    @Override
     public Bid getBidById(Long id) {
-        return bidRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Bid not found with id: " + id));
+        return null;
     }
 
-
+    @Override
     public List<Bid> getAllBids() {
-        return bidRepository.findAll();
+        return List.of();
     }
 
-
+    @Override
     public List<Bid> getBidsByAuctionId(Long auctionId) {
-        auctionRepository.findById(auctionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + auctionId));
-
-        return bidRepository.findAll()
-                .stream()
-                .filter(bid -> bid.getAuction() != null && auctionId.equals(bid.getAuction().getId()))
-                .toList();
+        return List.of();
     }
 
-
+    @Override
     public List<Bid> getBidsByUserId(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
-
-        return bidRepository.findAll()
-                .stream()
-                .filter(bid -> bid.getBidder() != null && userId.equals(bid.getBidder().getId()))
-                .toList();
+        return List.of();
     }
 }

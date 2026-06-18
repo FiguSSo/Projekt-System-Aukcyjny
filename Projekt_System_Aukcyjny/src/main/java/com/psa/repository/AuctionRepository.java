@@ -10,7 +10,10 @@ import java.util.List;
 
 @Repository
 public interface AuctionRepository extends JpaRepository<Auction, Long> {
+
     List<Auction> findByCategory(Category category);
+
     List<Auction> findByStatus(AuctionStatus status);
+
     List<Auction> findByCategoryAndStatus(Category category, AuctionStatus status);
 }

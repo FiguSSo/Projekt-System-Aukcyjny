@@ -22,16 +22,21 @@ public class AuctionServiceImpl implements AuctionService {
 
     @Override
     public Auction createAuction(AuctionRequestDto auctionRequestDto) {
+        validateAuctionDates(auctionRequestDto);
+
         Auction auction = new Auction();
         mapAuctionFields(auction, auctionRequestDto);
         auction.setStatus(AuctionStatus.ACTIVE);
+
         return auctionRepository.save(auction);
     }
 
     @Override
     public Auction updateAuction(Long id, AuctionRequestDto auctionRequestDto) {
+        validateAuctionDates(auctionRequestDto);
+
         Auction auction = auctionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aukcja o id " + id + " nie istnieje"));
 
         AuctionStatus currentStatus = auction.getStatus();
         mapAuctionFields(auction, auctionRequestDto);
@@ -43,13 +48,13 @@ public class AuctionServiceImpl implements AuctionService {
     @Override
     public Auction getAuctionById(Long id) {
         return auctionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aukcja o id " + id + " nie istnieje"));
     }
 
     @Override
     public void deleteAuction(Long id) {
         Auction auction = auctionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Auction not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Aukcja o id " + id + " nie istnieje"));
 
         auction.setStatus(AuctionStatus.CLOSED);
         auctionRepository.save(auction);
@@ -84,11 +89,19 @@ public class AuctionServiceImpl implements AuctionService {
         auction.setCategory(parseCategory(auctionRequestDto.getCategory()));
     }
 
+    private void validateAuctionDates(AuctionRequestDto auctionRequestDto) {
+        if (auctionRequestDto.getStartDate() != null
+                && auctionRequestDto.getEndDate() != null
+                && !auctionRequestDto.getEndDate().isAfter(auctionRequestDto.getStartDate())) {
+            throw new IllegalArgumentException("Data zakonczenia musi byc pozniejsza niz data rozpoczecia");
+        }
+    }
+
     private Category parseCategory(String category) {
         try {
             return Category.valueOf(category.trim().toUpperCase(Locale.ROOT));
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Invalid category: " + category);
+            throw new IllegalArgumentException("Nieprawidlowa kategoria: " + category);
         }
     }
 
@@ -96,7 +109,7 @@ public class AuctionServiceImpl implements AuctionService {
         try {
             return AuctionStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
         } catch (Exception ex) {
-            throw new IllegalArgumentException("Invalid status: " + status);
+            throw new IllegalArgumentException("Nieprawidlowy status: " + status);
         }
     }
 
