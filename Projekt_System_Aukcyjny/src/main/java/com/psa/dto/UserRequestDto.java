@@ -3,15 +3,16 @@ package com.psa.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class  UserRequestDto {
+public class UserRequestDto {
 
-    @NotBlank(message = "Username cannot be blank")
+    @NotBlank(message = "Login nie moze byc pusty")
     private String username;
 
-    @NotBlank(message = "Password cannot be blank")
+    @NotBlank(message = "Haslo nie moze byc puste")
     private String password;
 
-    @Email(message = "Email should be valid")
+    @NotBlank(message = "Email nie moze byc pusty")
+    @Email(message = "Email ma niepoprawny format")
     private String email;
 
     private String firstName;
