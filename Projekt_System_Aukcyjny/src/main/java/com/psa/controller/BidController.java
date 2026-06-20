@@ -1,4 +1,3 @@
-// src/main/java/com/psa/controller/BidController.java
 package com.psa.controller;
 
 import com.psa.dto.BidRequestDto;
@@ -9,10 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api/bids")
+@RequestMapping("/api")
 public class BidController {
 
     private final BidService bidService;
@@ -21,39 +20,32 @@ public class BidController {
         this.bidService = bidService;
     }
 
-    @PostMapping
+    @PostMapping("/bids")
     public ResponseEntity<Bid> placeBid(@Valid @RequestBody BidRequestDto bidRequestDto) {
-        Bid bid = new Bid();
-        bid.setAmount(bidRequestDto.getAmount());
-
-        Bid savedBid = bidService.placeBid(
+        return createBidResponse(
                 bidRequestDto.getAuctionId(),
                 bidRequestDto.getUserId(),
-                bid
+                bidRequestDto.getAmount()
         );
-
-        return new ResponseEntity<>(savedBid, HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Bid> getBidById(@PathVariable Long id) {
-        Bid bid = bidService.getBidById(id);
-        return new ResponseEntity<>(bid, HttpStatus.OK);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Bid>> getAllBids(
-            @RequestParam(required = false) Long auctionId,
-            @RequestParam(required = false) Long userId
+    @PostMapping("/auctions/{auctionId}/bids")
+    public ResponseEntity<Bid> placeBidForAuction(
+            @PathVariable Long auctionId,
+            @Valid @RequestBody BidRequestDto bidRequestDto
     ) {
-        if (auctionId != null) {
-            return new ResponseEntity<>(bidService.getBidsByAuctionId(auctionId), HttpStatus.OK);
-        }
+        return createBidResponse(
+                auctionId,
+                bidRequestDto.getUserId(),
+                bidRequestDto.getAmount()
+        );
+    }
 
-        if (userId != null) {
-            return new ResponseEntity<>(bidService.getBidsByUserId(userId), HttpStatus.OK);
-        }
+    private ResponseEntity<Bid> createBidResponse(Long auctionId, Long userId, BigDecimal amount) {
+        Bid bid = new Bid();
+        bid.setAmount(amount);
 
-        return new ResponseEntity<>(bidService.getAllBids(), HttpStatus.OK);
+        Bid savedBid = bidService.placeBid(auctionId, userId, bid);
+        return new ResponseEntity<>(savedBid, HttpStatus.CREATED);
     }
 }
