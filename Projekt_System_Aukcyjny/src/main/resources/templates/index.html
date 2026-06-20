@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System aukcyjny</title>
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #dbe3ee;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --primary: #2563eb;
+            --primary-soft: #dbeafe;
+            --success: #15803d;
+            --success-soft: #dcfce7;
+            --danger: #b91c1c;
+            --danger-soft: #fee2e2;
+            --warning: #b45309;
+            --warning-soft: #fef3c7;
+            --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 100%);
+            color: var(--text);
+        }
+
+        .page-shell {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 28px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+            color: #ffffff;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px;
+            font-size: 34px;
+        }
+
+        .hero p {
+            margin: 0;
+            opacity: 0.95;
+            max-width: 760px;
+            line-height: 1.5;
+        }
+
+        .flash {
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .flash.success {
+            background: var(--success-soft);
+            border: 1px solid #bbf7d0;
+            color: var(--success);
+        }
+
+        .flash.error {
+            background: var(--danger-soft);
+            border: 1px solid #fecaca;
+            color: var(--danger);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(320px, 420px);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .main-panel {
+            padding: 22px;
+        }
+
+        .side-panel {
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 22px;
+        }
+
+        .tab-button {
+            appearance: none;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--text);
+            padding: 12px 16px;
+            border-radius: 999px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .tab-button.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.24);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .section-heading {
+            margin: 0 0 14px;
+            font-size: 24px;
+        }
+
+        .section-subtitle {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        form {
+            max-width: 560px;
+        }
+
+        label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select,
+        button,
+        textarea {
+            width: 100%;
+            display: block;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            border: 1px solid #cfd8e3;
+            border-radius: 12px;
+            background: #ffffff;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        button {
+            border: none;
+            background: var(--primary);
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .users-list {
+            margin-top: 24px;
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .users-list h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .user-row {
+            padding: 10px 0;
+            border-bottom: 1px solid #e8eef6;
+        }
+
+        .user-row:last-child {
+            border-bottom: none;
+        }
+
+        .user-name {
+            font-weight: 700;
+        }
+
+        .user-email {
+            color: var(--muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .auction-grid,
+        .highest-bids-list {
+            display: grid;
+            gap: 18px;
+        }
+
+        .auction-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
+
+        .auction-card,
+        .highest-bid-card {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        }
+
+        .auction-card h3,
+        .highest-bid-card h3 {
+            margin-top: 0;
+        }
+
+        .auction-meta .row,
+        .mini-meta div {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e4ebf5;
+        }
+
+        .auction-meta .row:last-child,
+        .mini-meta div:last-child {
+            border-bottom: none;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-box {
+            padding: 18px;
+            border: 1px dashed #cdd8e6;
+            border-radius: 16px;
+            background: #fafcff;
+            color: var(--muted);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .status-badge.ended {
+            background: var(--danger-soft);
+            color: var(--danger);
+        }
+
+        .status-badge.pending {
+            background: var(--warning-soft);
+            color: var(--warning);
+        }
+
+        .bid-form {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid #e5edf7;
+        }
+
+        .highest-bid-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 12px 0 8px;
+        }
+
+        @media (max-width: 1080px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .side-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page-shell {
+                padding: 16px;
+            }
+
+            .hero,
+            .main-panel,
+            .side-panel {
+                padding: 16px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-shell">
+    <header class="hero">
+        <h1>System aukcyjny</h1>
+        <p>
+            Rejestruj uzytkownikow, dodawaj aukcje i skladaj oferty.
+            Frontend komunikuje sie bezposrednio z REST API.
+        </p>
+        <div id="successMessage" class="flash success"></div>
+        <div id="errorMessage" class="flash error"></div>
+    </header>
+
+    <div class="layout">
+        <main>
+            <div class="panel main-panel">
+                <div class="tabs">
+                    <button type="button" class="tab-button active" data-tab="users-tab">Zarejestruj uzytkownika</button>
+                    <button type="button" class="tab-button" data-tab="auctions-tab">Dodaj aukcje</button>
+                    <button type="button" class="tab-button" data-tab="bids-tab">Licytuj aukcje</button>
+                </div>
+
+                <section id="users-tab" class="tab-panel active">
+                    <h2 class="section-heading">Rejestracja uzytkownika</h2>
+                    <p class="section-subtitle">Najpierw utworz uzytkownikow, aby mogli brac udzial w licytacji.</p>
+
+                    <form id="userForm">
+                        <label for="username">Login</label>
+                        <input id="username" name="username" type="text" required>
+
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" required>
+
+                        <label for="password">Haslo</label>
+                        <input id="password" name="password" type="password" required>
+
+                        <label for="firstName">Imie</label>
+                        <input id="firstName" name="firstName" type="text">
+
+                        <label for="lastName">Nazwisko</label>
+                        <input id="lastName" name="lastName" type="text">
+
+                        <button type="submit">Zarejestruj uzytkownika</button>
+                    </form>
+
+                    <div class="users-list">
+                        <h3>Aktualni uzytkownicy</h3>
+                        <div id="usersContainer" class="empty-box">Ladowanie uzytkownikow...</div>
+                    </div>
+                </section>
+
+                <section id="auctions-tab" class="tab-panel">
+                    <h2 class="section-heading">Dodaj aukcje</h2>
+                    <p class="section-subtitle">Utworz nowa aukcje i ustaw jej podstawowe dane.</p>
+
+                    <form id="auctionForm">
+                        <label for="title">Tytul</label>
+                        <input id="title" name="title" type="text" required>
+
+                        <label for="description">Opis</label>
+                        <textarea id="description" name="description" required></textarea>
+
+                        <label for="startingPrice">Cena wywolawcza</label>
+                        <input id="startingPrice" name="startingPrice" type="number" step="0.01" min="0.01" required>
+
+                        <label for="category">Kategoria</label>
+                        <select id="category" name="category" required>
+                            <option value="">-- wybierz kategorie --</option>
+                            <option value="ELECTRONICS">ELECTRONICS</option>
+                            <option value="CARS">CARS</option>
+                            <option value="SPORT">SPORT</option>
+                            <option value="HOME">HOME</option>
+                            <option value="OTHERS">OTHERS</option>
+                        </select>
+
+                        <label for="startDate">Data rozpoczecia</label>
+                        <input id="startDate" name="startDate" type="datetime-local" required>
+
+                        <label for="endDate">Data zakonczenia</label>
+                        <input id="endDate" name="endDate" type="datetime-local" required>
+
+                        <button type="submit">Dodaj aukcje</button>
+                    </form>
+                </section>
+
+                <section id="bids-tab" class="tab-panel">
+                    <h2 class="section-heading">Licytuj aukcje</h2>
+                    <p class="section-subtitle">Wybierz uzytkownika, podaj kwote i zloz oferte.</p>
+
+                    <div id="auctionsContainer" class="empty-box">Ladowanie aukcji...</div>
+                </section>
+            </div>
+        </main>
+
+        <aside>
+            <div class="panel side-panel">
+                <h2 class="section-heading">Najwyzsze oferty</h2>
+                <p class="section-subtitle">Panel jest zawsze widoczny i odswieza sie po kazdej operacji.</p>
+                <div id="highestBidsContainer" class="empty-box">Ladowanie najwyzszych ofert...</div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<script>
+    const state = {
+        users: [],
+        auctions: []
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        setupTabs();
+        setupForms();
+        await refreshData();
+    });
+
+    function setupTabs() {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabPanels = document.querySelectorAll(".tab-panel");
+
+        function activateTab(tabId) {
+            tabButtons.forEach((button) => {
+                button.classList.toggle("active", button.dataset.tab === tabId);
+            });
+
+            tabPanels.forEach((panel) => {
+                panel.classList.toggle("active", panel.id === tabId);
+            });
+        }
+
+        tabButtons.forEach((button) => {
+            button.addEventListener("click", () => activateTab(button.dataset.tab));
+        });
+    }
+
+    function setupForms() {
+        document.getElementById("userForm").addEventListener("submit", handleCreateUser);
+        document.getElementById("auctionForm").addEventListener("submit", handleCreateAuction);
+    }
+
+    async function refreshData() {
+        try {
+            const [users, auctions] = await Promise.all([
+                fetchJson("/api/users"),
+                fetchJson("/api/auctions")
+            ]);
+
+            state.users = Array.isArray(users) ? users : [];
+            state.auctions = Array.isArray(auctions) ? auctions : [];
+
+            renderUsers();
+            renderAuctions();
+            renderHighestBids();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateUser(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const payload = {
+            username: form.username.value.trim(),
+            email: form.email.value.trim(),
+            password: form.password.value,
+            firstName: form.firstName.value.trim(),
+            lastName: form.lastName.value.trim()
+        };
+
+        try {
+            await fetchJson("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Uzytkownik zostal utworzony");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateAuction(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const payload = {
+            title: form.title.value.trim(),
+            description: form.description.value.trim(),
+            startingPrice: form.startingPrice.value,
+            category: form.category.value,
+            startDate: form.startDate.value,
+            endDate: form.endDate.value
+        };
+
+        try {
+            await fetchJson("/api/auctions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Aukcja zostala utworzona");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateBid(auctionId, form) {
+        const payload = {
+            auctionId: auctionId,
+            userId: Number(form.querySelector("[name='userId']").value),
+            amount: form.querySelector("[name='amount']").value
+        };
+
+        try {
+            await fetchJson(`/api/auctions/${auctionId}/bids`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Oferta zostala zlozona");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    function renderUsers() {
+        const container = document.getElementById("usersContainer");
+
+        if (state.users.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak uzytkownikow. Dodaj pierwszego uzytkownika formularzem powyzej.";
+            return;
+        }
+
+        container.className = "";
+        container.innerHTML = state.users.map((user) => `
+            <div class="user-row">
+                <div class="user-name">${escapeHtml(user.username ?? "")}</div>
+                <div class="user-email">${escapeHtml(user.email ?? "")}</div>
+            </div>
+        `).join("");
+    }
+
+    function renderAuctions() {
+        const container = document.getElementById("auctionsContainer");
+
+        if (state.auctions.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak aukcji do licytacji.";
+            return;
+        }
+
+        container.className = "auction-grid";
+        container.innerHTML = state.auctions.map((auction) => `
+            <div class="auction-card">
+                <h3>${escapeHtml(auction.title ?? "")}</h3>
+
+                <div class="auction-meta">
+                    <div class="row"><span>ID</span><span>${auction.id ?? ""}</span></div>
+                    <div class="row"><span>Kategoria</span><span>${escapeHtml(auction.category ?? "")}</span></div>
+                    <div class="row"><span>Cena wywolawcza</span><span>${escapeHtml(auction.startingPrice ?? "")}</span></div>
+                    <div class="row"><span>Status</span><span>${buildStatusBadge(auction.status)}</span></div>
+                    <div class="row"><span>Start</span><span>${formatDateTime(auction.startDate)}</span></div>
+                    <div class="row"><span>Koniec</span><span>${formatDateTime(auction.endDate)}</span></div>
+                    <div class="row"><span>Najwyzsza oferta</span><span>${auction.currentHighestBid ? escapeHtml(auction.currentHighestBid.amount) : "Brak"}</span></div>
+                </div>
+
+                <p class="muted">${escapeHtml(auction.description ?? "")}</p>
+
+                ${state.users.length === 0 ? `
+                    <div class="empty-box">Najpierw zarejestruj uzytkownika, aby moc licytowac.</div>
+                ` : `
+                    <form class="bid-form" data-auction-id="${auction.id}">
+                        <label>Uzytkownik</label>
+                        <select name="userId" required>
+                            <option value="">-- wybierz uzytkownika --</option>
+                            ${state.users.map((user) => `
+                                <option value="${user.id}">${escapeHtml(user.username ?? "")} (${escapeHtml(user.email ?? "")})</option>
+                            `).join("")}
+                        </select>
+
+                        <label>Kwota</label>
+                        <input type="number" name="amount" step="0.01" min="0.01" required>
+
+                        <button type="submit">Zloz oferte</button>
+                    </form>
+                `}
+            </div>
+        `).join("");
+
+        container.querySelectorAll(".bid-form").forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const auctionId = Number(form.dataset.auctionId);
+                await handleCreateBid(auctionId, form);
+            });
+        });
+    }
+
+    function renderHighestBids() {
+        const container = document.getElementById("highestBidsContainer");
+
+        if (state.auctions.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak aukcji. Po utworzeniu aukcji pojawia sie tutaj najwyzsze oferty.";
+            return;
+        }
+
+        const auctionsSorted = [...state.auctions].sort((a, b) => {
+            const amountA = a.currentHighestBid ? Number(a.currentHighestBid.amount) : -1;
+            const amountB = b.currentHighestBid ? Number(b.currentHighestBid.amount) : -1;
+            return amountB - amountA;
+        });
+
+        container.className = "highest-bids-list";
+        container.innerHTML = auctionsSorted.map((auction) => `
+            <div class="highest-bid-card">
+                <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+                    <h3>${escapeHtml(auction.title ?? "")}</h3>
+                    ${buildStatusBadge(auction.status)}
+                </div>
+
+                <div class="highest-bid-value">
+                    ${auction.currentHighestBid ? escapeHtml(auction.currentHighestBid.amount) : "Brak ofert"}
+                </div>
+
+                <div class="mini-meta">
+                    <div><strong>Cena startowa:</strong><span>${escapeHtml(auction.startingPrice ?? "")}</span></div>
+                    <div><strong>Koniec aukcji:</strong><span>${formatDateTime(auction.endDate)}</span></div>
+                    <div><strong>Ostatni bid:</strong><span>${auction.currentHighestBid?.bidTime ? formatDateTime(auction.currentHighestBid.bidTime) : "Brak"}</span></div>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    async function fetchJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const contentType = response.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+        const data = isJson ? await response.json() : null;
+
+        if (!response.ok) {
+            throw new Error(extractErrorMessage(data, response.status));
+        }
+
+        return data;
+    }
+
+    function extractErrorMessage(data, status) {
+        if (data?.message) {
+            return data.message;
+        }
+
+        if (data?.validationErrors) {
+            const messages = Object.values(data.validationErrors);
+            if (messages.length > 0) {
+                return messages.join(", ");
+            }
+        }
+
+        return `Operacja nie powiodla sie. Kod HTTP: ${status}`;
+    }
+
+    function showSuccess(message) {
+        const successBox = document.getElementById("successMessage");
+        const errorBox = document.getElementById("errorMessage");
+
+        successBox.textContent = message;
+        successBox.style.display = "block";
+        errorBox.style.display = "none";
+    }
+
+    function showError(message) {
+        const successBox = document.getElementById("successMessage");
+        const errorBox = document.getElementById("errorMessage");
+
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+        successBox.style.display = "none";
+    }
+
+    function buildStatusBadge(status) {
+        const safeStatus = escapeHtml(status ?? "BRAK");
+        const className = status === "CLOSED" || status === "ENDED"
+            ? "status-badge ended"
+            : status === "PENDING"
+                ? "status-badge pending"
+                : "status-badge";
+
+        return `<span class="${className}">${safeStatus}</span>`;
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "Brak";
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(String(value));
+        }
+
+        return escapeHtml(date.toLocaleString("pl-PL"));
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
+</script>
+</body>
+</html>
