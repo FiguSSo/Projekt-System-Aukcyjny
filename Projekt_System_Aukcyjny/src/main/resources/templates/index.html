@@ -1,8 +1,8 @@
-<!-- src/main/resources/templates/index.html -->
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System aukcyjny</title>
     <style>
         :root {
@@ -21,7 +21,6 @@
             --warning: #b45309;
             --warning-soft: #fef3c7;
             --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
-            --radius: 16px;
         }
 
         * {
@@ -63,22 +62,23 @@
         }
 
         .flash {
-            margin: 18px 0 0;
+            margin-top: 16px;
             padding: 12px 14px;
             border-radius: 12px;
             font-weight: 700;
+            display: none;
         }
 
         .flash.success {
-            background: rgba(220, 252, 231, 0.18);
-            border: 1px solid rgba(220, 252, 231, 0.4);
-            color: #ecfdf5;
+            background: var(--success-soft);
+            border: 1px solid #bbf7d0;
+            color: var(--success);
         }
 
         .flash.error {
-            background: rgba(254, 226, 226, 0.16);
-            border: 1px solid rgba(254, 226, 226, 0.35);
-            color: #fff1f2;
+            background: var(--danger-soft);
+            border: 1px solid #fecaca;
+            color: var(--danger);
         }
 
         .layout {
@@ -86,11 +86,6 @@
             grid-template-columns: minmax(0, 2fr) minmax(320px, 420px);
             gap: 24px;
             align-items: start;
-        }
-
-        .main-column,
-        .side-column {
-            min-width: 0;
         }
 
         .panel {
@@ -130,11 +125,6 @@
             transition: 0.2s ease;
         }
 
-        .tab-button:hover {
-            transform: translateY(-1px);
-            border-color: #bfd1ea;
-        }
-
         .tab-button.active {
             background: var(--primary);
             color: #ffffff;
@@ -151,12 +141,12 @@
         }
 
         .section-heading {
-            margin: 0 0 18px;
+            margin: 0 0 14px;
             font-size: 24px;
         }
 
         .section-subtitle {
-            margin: -4px 0 18px;
+            margin: 0 0 18px;
             color: var(--muted);
             line-height: 1.5;
         }
@@ -171,7 +161,10 @@
             margin-bottom: 6px;
         }
 
-        input, select, button, textarea {
+        input,
+        select,
+        button,
+        textarea {
             width: 100%;
             display: block;
             margin-bottom: 14px;
@@ -183,7 +176,9 @@
             color: var(--text);
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
@@ -200,22 +195,6 @@
             color: #ffffff;
             font-weight: 700;
             cursor: pointer;
-            transition: 0.2s ease;
-        }
-
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
-        }
-
-        .error {
-            color: var(--danger);
-            margin: -6px 0 12px;
-            font-size: 14px;
-        }
-
-        .muted {
-            color: var(--muted);
         }
 
         .users-list {
@@ -250,40 +229,53 @@
             margin-top: 4px;
         }
 
-        .auction-grid {
+        .auction-grid,
+        .highest-bids-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 18px;
         }
 
-        .auction-card {
-            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+        .auction-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        }
+
+        .auction-card,
+        .highest-bid-card {
             border: 1px solid var(--border);
             border-radius: 18px;
             padding: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
         }
 
-        .auction-card h3 {
-            margin: 0 0 12px;
-            font-size: 21px;
+        .auction-card h3,
+        .highest-bid-card h3 {
+            margin-top: 0;
         }
 
-        .auction-meta {
-            display: grid;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .auction-meta .row {
+        .auction-meta .row,
+        .mini-meta div {
             display: flex;
             justify-content: space-between;
             gap: 12px;
-            padding-bottom: 8px;
+            padding: 8px 0;
             border-bottom: 1px dashed #e4ebf5;
         }
 
-        .auction-meta .row span:last-child {
-            text-align: right;
+        .auction-meta .row:last-child,
+        .mini-meta div:last-child {
+            border-bottom: none;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-box {
+            padding: 18px;
+            border: 1px dashed #cdd8e6;
+            border-radius: 16px;
+            background: #fafcff;
+            color: var(--muted);
         }
 
         .status-badge {
@@ -306,84 +298,17 @@
             color: var(--warning);
         }
 
-        .bid-box {
+        .bid-form {
             margin-top: 18px;
-            padding-top: 16px;
-            border-top: 1px solid #e8eef6;
+            padding-top: 14px;
+            border-top: 1px solid #e5edf7;
         }
 
-        .bid-box h4 {
-            margin: 0 0 12px;
-            font-size: 18px;
-        }
-
-        .sidebar-title {
-            margin: 0 0 8px;
-            font-size: 24px;
-        }
-
-        .sidebar-subtitle {
-            margin: 0 0 18px;
-            color: var(--muted);
-            line-height: 1.5;
-        }
-
-        .highest-bids-list {
-            display: grid;
-            gap: 14px;
-        }
-
-        .highest-bid-card {
-            border: 1px solid var(--border);
-            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-            border-radius: 16px;
-            padding: 16px;
-        }
-
-        .highest-bid-card.has-bid {
-            border-color: #bfdbfe;
-            background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-        }
-
-        .highest-bid-header {
-            display: flex;
-            align-items: start;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .highest-bid-title {
-            margin: 0;
-            font-size: 17px;
-        }
-
-        .highest-bid-amount {
+        .highest-bid-value {
             font-size: 24px;
             font-weight: 800;
             color: var(--primary);
-            margin: 0 0 8px;
-        }
-
-        .highest-bid-empty {
-            color: var(--muted);
-            font-style: italic;
-            margin: 0;
-        }
-
-        .mini-meta {
-            display: grid;
-            gap: 6px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .empty-box {
-            padding: 18px;
-            border: 1px dashed #cdd8e6;
-            border-radius: 16px;
-            background: #fafcff;
-            color: var(--muted);
+            margin: 12px 0 8px;
         }
 
         @media (max-width: 1080px) {
@@ -401,10 +326,7 @@
                 padding: 16px;
             }
 
-            .hero {
-                padding: 20px;
-            }
-
+            .hero,
             .main-panel,
             .side-panel {
                 padding: 16px;
@@ -425,274 +347,423 @@
     <header class="hero">
         <h1>System aukcyjny</h1>
         <p>
-            Zarejestruj użytkownika, dodaj aukcję i zarządzaj licytacją w jednym miejscu.
-            Panel po prawej stronie stale pokazuje aktualnie najwyższe oferty dla wszystkich aukcji.
+            Rejestruj uzytkownikow, dodawaj aukcje i skladaj oferty.
+            Frontend komunikuje sie bezposrednio z REST API.
         </p>
-
-        <div class="flash success" th:if="${successMessage}" th:text="${successMessage}"></div>
-        <div class="flash error" th:if="${bidError}" th:text="${bidError}"></div>
+        <div id="successMessage" class="flash success"></div>
+        <div id="errorMessage" class="flash error"></div>
     </header>
 
     <div class="layout">
-        <main class="main-column">
+        <main>
             <div class="panel main-panel">
                 <div class="tabs">
-                    <button type="button" class="tab-button active" data-tab="users-tab">Zarejestruj użytkownika</button>
-                    <button type="button" class="tab-button" data-tab="auctions-tab">Dodaj aukcję</button>
+                    <button type="button" class="tab-button active" data-tab="users-tab">Zarejestruj uzytkownika</button>
+                    <button type="button" class="tab-button" data-tab="auctions-tab">Dodaj aukcje</button>
                     <button type="button" class="tab-button" data-tab="bids-tab">Licytuj aukcje</button>
                 </div>
 
                 <section id="users-tab" class="tab-panel active">
-                    <h2 class="section-heading">Rejestracja użytkownika</h2>
-                    <p class="section-subtitle">
-                        Najpierw utwórz użytkowników, aby później mogli brać udział w licytacji.
-                    </p>
+                    <h2 class="section-heading">Rejestracja uzytkownika</h2>
+                    <p class="section-subtitle">Najpierw utworz uzytkownikow, aby mogli brac udzial w licytacji.</p>
 
-                    <form th:action="@{/users/register}" th:object="${userForm}" method="post">
+                    <form id="userForm">
                         <label for="username">Login</label>
-                        <input id="username" type="text" th:field="*{username}" required>
-                        <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+                        <input id="username" name="username" type="text" required>
 
                         <label for="email">Email</label>
-                        <input id="email" type="email" th:field="*{email}" required>
-                        <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+                        <input id="email" name="email" type="email" required>
 
-                        <label for="password">Hasło</label>
-                        <input id="password" type="password" th:field="*{password}" required>
-                        <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+                        <label for="password">Haslo</label>
+                        <input id="password" name="password" type="password" required>
 
-                        <label for="firstName">Imię</label>
-                        <input id="firstName" type="text" th:field="*{firstName}">
+                        <label for="firstName">Imie</label>
+                        <input id="firstName" name="firstName" type="text">
 
                         <label for="lastName">Nazwisko</label>
-                        <input id="lastName" type="text" th:field="*{lastName}">
+                        <input id="lastName" name="lastName" type="text">
 
-                        <div class="error" th:if="${#fields.hasGlobalErrors()}">
-                            <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
-                        </div>
-
-                        <button type="submit">Zarejestruj użytkownika</button>
+                        <button type="submit">Zarejestruj uzytkownika</button>
                     </form>
 
                     <div class="users-list">
-                        <h3>Aktualni użytkownicy</h3>
-
-                        <div th:if="${#lists.isEmpty(users)}" class="empty-box">
-                            Brak użytkowników. Dodaj pierwszego użytkownika formularzem powyżej.
-                        </div>
-
-                        <div th:if="${not #lists.isEmpty(users)}">
-                            <div class="user-row" th:each="user : ${users}">
-                                <div class="user-name" th:text="${user.username}">username</div>
-                                <div class="user-email" th:text="${user.email}">user@email.com</div>
-                            </div>
-                        </div>
+                        <h3>Aktualni uzytkownicy</h3>
+                        <div id="usersContainer" class="empty-box">Ladowanie uzytkownikow...</div>
                     </div>
                 </section>
 
                 <section id="auctions-tab" class="tab-panel">
-                    <h2 class="section-heading">Dodaj aukcję</h2>
-                    <p class="section-subtitle">
-                        Utwórz nową aukcję, ustaw termin i kategorię, a potem pozwól użytkownikom licytować.
-                    </p>
+                    <h2 class="section-heading">Dodaj aukcje</h2>
+                    <p class="section-subtitle">Utworz nowa aukcje i ustaw jej podstawowe dane.</p>
 
-                    <form th:action="@{/auctions}" th:object="${auctionForm}" method="post">
-                        <label for="title">Tytuł</label>
-                        <input id="title" type="text" th:field="*{title}" required>
-                        <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                    <form id="auctionForm">
+                        <label for="title">Tytul</label>
+                        <input id="title" name="title" type="text" required>
 
                         <label for="description">Opis</label>
-                        <textarea id="description" th:field="*{description}" required></textarea>
-                        <div class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                        <textarea id="description" name="description" required></textarea>
 
-                        <label for="startingPrice">Cena startowa</label>
-                        <input id="startingPrice" type="number" step="0.01" min="0.01" th:field="*{startingPrice}" required>
-                        <div class="error" th:if="${#fields.hasErrors('startingPrice')}" th:errors="*{startingPrice}"></div>
+                        <label for="startingPrice">Cena wywolawcza</label>
+                        <input id="startingPrice" name="startingPrice" type="number" step="0.01" min="0.01" required>
 
                         <label for="category">Kategoria</label>
-                        <select id="category" th:field="*{category}" required>
-                            <option value="">-- wybierz kategorię --</option>
+                        <select id="category" name="category" required>
+                            <option value="">-- wybierz kategorie --</option>
                             <option value="ELECTRONICS">ELECTRONICS</option>
                             <option value="CARS">CARS</option>
                             <option value="SPORT">SPORT</option>
                             <option value="HOME">HOME</option>
                             <option value="OTHERS">OTHERS</option>
                         </select>
-                        <div class="error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></div>
 
-                        <label for="startDate">Data rozpoczęcia</label>
-                        <input id="startDate" type="datetime-local" th:field="*{startDate}" required>
-                        <div class="error" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}"></div>
+                        <label for="startDate">Data rozpoczecia</label>
+                        <input id="startDate" name="startDate" type="datetime-local" required>
 
-                        <label for="endDate">Data zakończenia</label>
-                        <input id="endDate" type="datetime-local" th:field="*{endDate}" required>
-                        <div class="error" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}"></div>
+                        <label for="endDate">Data zakonczenia</label>
+                        <input id="endDate" name="endDate" type="datetime-local" required>
 
-                        <button type="submit">Dodaj aukcję</button>
+                        <button type="submit">Dodaj aukcje</button>
                     </form>
                 </section>
 
                 <section id="bids-tab" class="tab-panel">
                     <h2 class="section-heading">Licytuj aukcje</h2>
-                    <p class="section-subtitle">
-                        Wybierz użytkownika, ustaw kwotę i złóż ofertę na wybraną aukcję.
-                    </p>
+                    <p class="section-subtitle">Wybierz uzytkownika, podaj kwote i zloz oferte.</p>
 
-                    <div th:if="${#lists.isEmpty(auctions)}" class="empty-box">
-                        Brak aukcji do licytacji.
-                    </div>
-
-                    <div th:if="${#lists.isEmpty(users)}" class="empty-box" style="margin-bottom: 18px;">
-                        Najpierw zarejestruj użytkownika, aby móc licytować.
-                    </div>
-
-                    <div class="auction-grid" th:if="${not #lists.isEmpty(auctions)}">
-                        <div class="auction-card" th:each="auction, iterStat : ${auctions}">
-                            <h3 th:text="${auction.title}">Tytuł aukcji</h3>
-
-                            <div class="auction-meta">
-                                <div class="row">
-                                    <span>ID</span>
-                                    <span th:text="${auction.id}">1</span>
-                                </div>
-                                <div class="row">
-                                    <span>Kategoria</span>
-                                    <span th:text="${auction.category}">SPORT</span>
-                                </div>
-                                <div class="row">
-                                    <span>Cena startowa</span>
-                                    <span th:text="${auction.startingPrice}">0.00</span>
-                                </div>
-                                <div class="row">
-                                    <span>Status</span>
-                                    <span>
-                                        <span class="status-badge"
-                                              th:classappend="${auction.status != null and auction.status.name() == 'ENDED'} ? ' ended' : (${auction.status != null and auction.status.name() == 'PENDING'} ? ' pending' : '')"
-                                              th:text="${auction.status}">
-                                            ACTIVE
-                                        </span>
-                                    </span>
-                                </div>
-                                <div class="row">
-                                    <span>Start</span>
-                                    <span th:text="${auction.startDate}">2026-06-18T21:12</span>
-                                </div>
-                                <div class="row">
-                                    <span>Koniec</span>
-                                    <span th:text="${auction.endDate}">2026-06-18T22:12</span>
-                                </div>
-                                <div class="row">
-                                    <span>Najwyższa oferta</span>
-                                    <span th:text="${auction.currentHighestBid != null ? auction.currentHighestBid.amount : 'Brak'}">Brak</span>
-                                </div>
-                            </div>
-
-                            <div class="muted" style="margin-bottom: 6px;" th:text="${auction.description}">
-                                Opis aukcji
-                            </div>
-
-                            <div class="bid-box" th:if="${not #lists.isEmpty(users)}">
-                                <h4>Postaw bid</h4>
-
-                                <form th:action="@{/bids}" method="post">
-                                    <input type="hidden" name="auctionId" th:value="${auction.id}">
-
-                                    <label th:for="${'userId-' + iterStat.index}">Użytkownik</label>
-                                    <select th:id="${'userId-' + iterStat.index}" name="userId" required>
-                                        <option value="">-- wybierz użytkownika --</option>
-                                        <option th:each="user : ${users}"
-                                                th:value="${user.id}"
-                                                th:text="${user.username + ' (' + user.email + ')'}">
-                                            user
-                                        </option>
-                                    </select>
-
-                                    <label th:for="${'amount-' + iterStat.index}">Kwota</label>
-                                    <input th:id="${'amount-' + iterStat.index}" type="number" name="amount" step="0.01" min="0.01" required>
-
-                                    <button type="submit">Złóż ofertę</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="auctionsContainer" class="empty-box">Ladowanie aukcji...</div>
                 </section>
             </div>
         </main>
 
-        <aside class="side-column">
+        <aside>
             <div class="panel side-panel">
-                <h2 class="sidebar-title">Najwyższe oferty</h2>
-                <p class="sidebar-subtitle">
-                    Ten panel jest zawsze widoczny i pokazuje aktualnie najwyższe oferty dla wszystkich aukcji.
-                </p>
-
-                <div th:if="${#lists.isEmpty(auctions)}" class="empty-box">
-                    Brak aukcji. Po utworzeniu aukcji pojawią się tutaj najwyższe oferty.
-                </div>
-
-                <div class="highest-bids-list" th:if="${not #lists.isEmpty(auctions)}">
-                    <div class="highest-bid-card"
-                         th:each="auction : ${auctions}"
-                         th:classappend="${auction.currentHighestBid != null} ? ' has-bid' : ''">
-
-                        <div class="highest-bid-header">
-                            <h3 class="highest-bid-title" th:text="${auction.title}">Aukcja</h3>
-                            <span class="status-badge"
-                                  th:classappend="${auction.status != null and auction.status.name() == 'ENDED'} ? ' ended' : (${auction.status != null and auction.status.name() == 'PENDING'} ? ' pending' : '')"
-                                  th:text="${auction.status}">
-                                ACTIVE
-                            </span>
-                        </div>
-
-                        <p class="highest-bid-amount"
-                           th:if="${auction.currentHighestBid != null}"
-                           th:text="${auction.currentHighestBid.amount}">
-                            100.00
-                        </p>
-
-                        <p class="highest-bid-empty"
-                           th:if="${auction.currentHighestBid == null}">
-                            Brak ofert dla tej aukcji
-                        </p>
-
-                        <div class="mini-meta">
-                            <div>
-                                <strong>Cena startowa:</strong>
-                                <span th:text="${auction.startingPrice}">0.00</span>
-                            </div>
-                            <div>
-                                <strong>Koniec aukcji:</strong>
-                                <span th:text="${auction.endDate}">2026-06-18T22:12</span>
-                            </div>
-                            <div th:if="${auction.currentHighestBid != null and auction.currentHighestBid.bidTime != null}">
-                                <strong>Ostatni bid:</strong>
-                                <span th:text="${auction.currentHighestBid.bidTime}">2026-06-18T21:12</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h2 class="section-heading">Najwyzsze oferty</h2>
+                <p class="section-subtitle">Panel jest zawsze widoczny i odswieza sie po kazdej operacji.</p>
+                <div id="highestBidsContainer" class="empty-box">Ladowanie najwyzszych ofert...</div>
             </div>
         </aside>
     </div>
 </div>
 
 <script>
-    const tabButtons = document.querySelectorAll(".tab-button");
-    const tabPanels = document.querySelectorAll(".tab-panel");
+    const state = {
+        users: [],
+        auctions: []
+    };
 
-    function activateTab(tabId) {
+    document.addEventListener("DOMContentLoaded", async () => {
+        setupTabs();
+        setupForms();
+        await refreshData();
+    });
+
+    function setupTabs() {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabPanels = document.querySelectorAll(".tab-panel");
+
+        function activateTab(tabId) {
+            tabButtons.forEach((button) => {
+                button.classList.toggle("active", button.dataset.tab === tabId);
+            });
+
+            tabPanels.forEach((panel) => {
+                panel.classList.toggle("active", panel.id === tabId);
+            });
+        }
+
         tabButtons.forEach((button) => {
-            button.classList.toggle("active", button.dataset.tab === tabId);
-        });
-
-        tabPanels.forEach((panel) => {
-            panel.classList.toggle("active", panel.id === tabId);
+            button.addEventListener("click", () => activateTab(button.dataset.tab));
         });
     }
 
-    tabButtons.forEach((button) => {
-        button.addEventListener("click", () => activateTab(button.dataset.tab));
-    });
+    function setupForms() {
+        document.getElementById("userForm").addEventListener("submit", handleCreateUser);
+        document.getElementById("auctionForm").addEventListener("submit", handleCreateAuction);
+    }
+
+    async function refreshData() {
+        try {
+            const [users, auctions] = await Promise.all([
+                fetchJson("/api/users"),
+                fetchJson("/api/auctions")
+            ]);
+
+            state.users = Array.isArray(users) ? users : [];
+            state.auctions = Array.isArray(auctions) ? auctions : [];
+
+            renderUsers();
+            renderAuctions();
+            renderHighestBids();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateUser(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const payload = {
+            username: form.username.value.trim(),
+            email: form.email.value.trim(),
+            password: form.password.value,
+            firstName: form.firstName.value.trim(),
+            lastName: form.lastName.value.trim()
+        };
+
+        try {
+            await fetchJson("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Uzytkownik zostal utworzony");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateAuction(event) {
+        event.preventDefault();
+
+        const form = event.currentTarget;
+        const payload = {
+            title: form.title.value.trim(),
+            description: form.description.value.trim(),
+            startingPrice: form.startingPrice.value,
+            category: form.category.value,
+            startDate: form.startDate.value,
+            endDate: form.endDate.value
+        };
+
+        try {
+            await fetchJson("/api/auctions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Aukcja zostala utworzona");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    async function handleCreateBid(auctionId, form) {
+        const payload = {
+            auctionId: auctionId,
+            userId: Number(form.querySelector("[name='userId']").value),
+            amount: form.querySelector("[name='amount']").value
+        };
+
+        try {
+            await fetchJson(`/api/auctions/${auctionId}/bids`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            form.reset();
+            showSuccess("Oferta zostala zlozona");
+            await refreshData();
+        } catch (error) {
+            showError(error.message);
+        }
+    }
+
+    function renderUsers() {
+        const container = document.getElementById("usersContainer");
+
+        if (state.users.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak uzytkownikow. Dodaj pierwszego uzytkownika formularzem powyzej.";
+            return;
+        }
+
+        container.className = "";
+        container.innerHTML = state.users.map((user) => `
+            <div class="user-row">
+                <div class="user-name">${escapeHtml(user.username ?? "")}</div>
+                <div class="user-email">${escapeHtml(user.email ?? "")}</div>
+            </div>
+        `).join("");
+    }
+
+    function renderAuctions() {
+        const container = document.getElementById("auctionsContainer");
+
+        if (state.auctions.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak aukcji do licytacji.";
+            return;
+        }
+
+        container.className = "auction-grid";
+        container.innerHTML = state.auctions.map((auction) => `
+            <div class="auction-card">
+                <h3>${escapeHtml(auction.title ?? "")}</h3>
+
+                <div class="auction-meta">
+                    <div class="row"><span>ID</span><span>${auction.id ?? ""}</span></div>
+                    <div class="row"><span>Kategoria</span><span>${escapeHtml(auction.category ?? "")}</span></div>
+                    <div class="row"><span>Cena wywolawcza</span><span>${escapeHtml(auction.startingPrice ?? "")}</span></div>
+                    <div class="row"><span>Status</span><span>${buildStatusBadge(auction.status)}</span></div>
+                    <div class="row"><span>Start</span><span>${formatDateTime(auction.startDate)}</span></div>
+                    <div class="row"><span>Koniec</span><span>${formatDateTime(auction.endDate)}</span></div>
+                    <div class="row"><span>Najwyzsza oferta</span><span>${auction.currentHighestBid ? escapeHtml(auction.currentHighestBid.amount) : "Brak"}</span></div>
+                </div>
+
+                <p class="muted">${escapeHtml(auction.description ?? "")}</p>
+
+                ${state.users.length === 0 ? `
+                    <div class="empty-box">Najpierw zarejestruj uzytkownika, aby moc licytowac.</div>
+                ` : `
+                    <form class="bid-form" data-auction-id="${auction.id}">
+                        <label>Uzytkownik</label>
+                        <select name="userId" required>
+                            <option value="">-- wybierz uzytkownika --</option>
+                            ${state.users.map((user) => `
+                                <option value="${user.id}">${escapeHtml(user.username ?? "")} (${escapeHtml(user.email ?? "")})</option>
+                            `).join("")}
+                        </select>
+
+                        <label>Kwota</label>
+                        <input type="number" name="amount" step="0.01" min="0.01" required>
+
+                        <button type="submit">Zloz oferte</button>
+                    </form>
+                `}
+            </div>
+        `).join("");
+
+        container.querySelectorAll(".bid-form").forEach((form) => {
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const auctionId = Number(form.dataset.auctionId);
+                await handleCreateBid(auctionId, form);
+            });
+        });
+    }
+
+    function renderHighestBids() {
+        const container = document.getElementById("highestBidsContainer");
+
+        if (state.auctions.length === 0) {
+            container.className = "empty-box";
+            container.innerHTML = "Brak aukcji. Po utworzeniu aukcji pojawia sie tutaj najwyzsze oferty.";
+            return;
+        }
+
+        const auctionsSorted = [...state.auctions].sort((a, b) => {
+            const amountA = a.currentHighestBid ? Number(a.currentHighestBid.amount) : -1;
+            const amountB = b.currentHighestBid ? Number(b.currentHighestBid.amount) : -1;
+            return amountB - amountA;
+        });
+
+        container.className = "highest-bids-list";
+        container.innerHTML = auctionsSorted.map((auction) => `
+            <div class="highest-bid-card">
+                <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+                    <h3>${escapeHtml(auction.title ?? "")}</h3>
+                    ${buildStatusBadge(auction.status)}
+                </div>
+
+                <div class="highest-bid-value">
+                    ${auction.currentHighestBid ? escapeHtml(auction.currentHighestBid.amount) : "Brak ofert"}
+                </div>
+
+                <div class="mini-meta">
+                    <div><strong>Cena startowa:</strong><span>${escapeHtml(auction.startingPrice ?? "")}</span></div>
+                    <div><strong>Koniec aukcji:</strong><span>${formatDateTime(auction.endDate)}</span></div>
+                    <div><strong>Ostatni bid:</strong><span>${auction.currentHighestBid?.bidTime ? formatDateTime(auction.currentHighestBid.bidTime) : "Brak"}</span></div>
+                </div>
+            </div>
+        `).join("");
+    }
+
+    async function fetchJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const contentType = response.headers.get("content-type") || "";
+        const isJson = contentType.includes("application/json");
+        const data = isJson ? await response.json() : null;
+
+        if (!response.ok) {
+            throw new Error(extractErrorMessage(data, response.status));
+        }
+
+        return data;
+    }
+
+    function extractErrorMessage(data, status) {
+        if (data?.message) {
+            return data.message;
+        }
+
+        if (data?.validationErrors) {
+            const messages = Object.values(data.validationErrors);
+            if (messages.length > 0) {
+                return messages.join(", ");
+            }
+        }
+
+        return `Operacja nie powiodla sie. Kod HTTP: ${status}`;
+    }
+
+    function showSuccess(message) {
+        const successBox = document.getElementById("successMessage");
+        const errorBox = document.getElementById("errorMessage");
+
+        successBox.textContent = message;
+        successBox.style.display = "block";
+        errorBox.style.display = "none";
+    }
+
+    function showError(message) {
+        const successBox = document.getElementById("successMessage");
+        const errorBox = document.getElementById("errorMessage");
+
+        errorBox.textContent = message;
+        errorBox.style.display = "block";
+        successBox.style.display = "none";
+    }
+
+    function buildStatusBadge(status) {
+        const safeStatus = escapeHtml(status ?? "BRAK");
+        const className = status === "CLOSED" || status === "ENDED"
+            ? "status-badge ended"
+            : status === "PENDING"
+                ? "status-badge pending"
+                : "status-badge";
+
+        return `<span class="${className}">${safeStatus}</span>`;
+    }
+
+    function formatDateTime(value) {
+        if (!value) {
+            return "Brak";
+        }
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return escapeHtml(String(value));
+        }
+
+        return escapeHtml(date.toLocaleString("pl-PL"));
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#39;");
+    }
 </script>
 </body>
 </html>

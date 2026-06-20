@@ -1,5 +1,6 @@
 package com.psa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -37,6 +38,7 @@ public class Auction {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "current_highest_bid_id", referencedColumnName = "id")
+    @JsonIgnoreProperties({"auction", "bidder"})
     private Bid currentHighestBid;
 
     public Long getId() {

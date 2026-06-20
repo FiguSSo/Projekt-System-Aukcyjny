@@ -1,6 +1,9 @@
 package com.psa.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -19,13 +22,13 @@ public class Bid {
 
     @ManyToOne
     @JoinColumn(name = "auction_id", nullable = false)
+    @JsonIgnore
     private Auction auction;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"password"})
     private User bidder;
-
-    // Gettery i settery
 
     public Long getId() {
         return id;
